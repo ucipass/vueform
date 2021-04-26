@@ -1,0 +1,38 @@
+{
+    "submit":{
+      "text": "Submit",
+      "url": "http://localhost:3000"
+    },
+    "inputs":
+    [
+      {
+        "id": "username",
+        "label": "Username",
+        "placeholder": "Enter username..."
+      },
+      {
+        "label": "Password",
+        "placeholder": "Enter password...",
+        "type": "password",
+        "id": "password"
+      },
+      {
+        "label": "Settings1",
+        "placeholder": "Settings1",
+        "type": "text",
+        "id": "settings1"
+      },
+      {
+        "label": "Settings2",
+        "placeholder": "Settings2",
+        "type": "file",
+        "id": "settings2"
+      },
+      {
+        "label": "Settings3",
+        "placeholder": "Settings3",
+        "type": "text",
+        "id": "settings3"
+      }
+    ]  
+  }
