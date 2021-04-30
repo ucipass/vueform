@@ -8,19 +8,22 @@
       {
         "id": "username",
         "label": "Username",
-        "placeholder": "Enter username..."
+        "placeholder": "Username...",
+        "information": "This field is for username"
       },
       {
         "label": "Password",
         "placeholder": "Enter password...",
         "type": "password",
-        "id": "password"
+        "id": "password",
+        "information": "This field is for password"
       },
       {
         "label": "Settings1",
         "placeholder": "Settings1",
         "type": "text",
-        "id": "settings1"
+        "id": "settings1",
+        "information": "This field is for settings1"
       },
       {
         "label": "Settings2",
