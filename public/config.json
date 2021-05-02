@@ -9,7 +9,8 @@
         "id": "username",
         "label": "Username",
         "placeholder": "Username...",
-        "information": "This field is for username"
+        "information": "This field is for username",
+        "value" : "testuser"
       },
       {
         "label": "Password",

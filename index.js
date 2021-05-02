@@ -2,6 +2,26 @@
 const express = require('express')
 const app = express()
 const port = 3000
+const server = require('http').createServer(app);
+
+let sockets = new Map()
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"]
+  }
+});
+io.on('connection', (socket)=>{
+  let socketId = socket.id
+  sockets.set(socketId,socket)
+  console.log(`${socketId} connected`);
+  socket.on('disconnect', (data)=>{
+    console.log(`${socketId}(${socket.username}) disconnect event`);
+    sockets.delete(socketId)
+  })
+  
+})
+
 var cors = require('cors')
 app.use(cors())
 app.use(express.json());
@@ -12,6 +32,11 @@ app.post('/', (req, res) => {
   res.json(json)
 })
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
+
+let timer = setInterval(()=>{
+  // console.log(String(Date()))
+  io.sockets.emit( "timer", String(Date()) );
+},1000)
