@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="container-fulid w-100">
   <!-- NAVBAR -->
-    <nav class="navbar navbar-expand navbar-dark bg-dark pb-0">
+    <nav class="navbar navbar-expand navbar-dark bg-primary pb-0 ">
       <div class="container-fluid">
         <ul class="navbar-nav">
           <li class="nav-item">
@@ -17,6 +17,23 @@
       </div>
     </nav>    
 
+    <!-- <div class="m-2">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <button class="btn-primary-outline nav-link" :class="tab1 ? 'active' : '' " @click="tab1=!tab1" >Active</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" :class="tab2 ? 'active' : '' " @click="tab2=!tab2" >Link</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" :class="tab3 ? 'active' : '' " @click="tab3=!tab3" >Link</button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link disabled" >Disabled</button>
+        </li>
+      </ul>
+    </div> -->
+
   </div>
 
 </template>
@@ -30,6 +47,9 @@ export default {
   data () {
     return {
       input_active: true,
+      tab1: true,
+      tab2: false,
+      tab3: false
 
     }
   },

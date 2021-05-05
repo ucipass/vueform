@@ -25,11 +25,5 @@
     ],
     "submit_text": "Login",
     "submit_url": "http://localhost:3000/"
-  },
-  "output": {
-
-  },
-  "socket": {
-
   }
 }

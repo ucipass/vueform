@@ -1,14 +1,11 @@
 <template>
-  <div>
+  <div v-if="visible" class="m-3 d-flex flex-fill">
 
 <!-- OUTPUT -->
-  <div class="m-1">
-    <label class="mb-0" for="TextAreaOutput.id">output</label>
-    <textarea class="form-control" id="TextAreaOutput" rows="20" :value="JSON.stringify(output, null, 2)"></textarea>
-  </div>
+    <!-- <label class="mb-0" for="TextAreaOutput.id">output</label> -->
+    <textarea class="form-control text-nowrap" id="TextAreaOutput" rows="20" style="resize:none" :value="JSON.stringify(json, null, 2)"></textarea>
 
   </div>
-
 </template>
 
 <script>
@@ -16,7 +13,8 @@ export default {
   name: 'Output',
   props: {
     config: Object,
-    output: null
+    visible: Boolean,
+    json: null
   },
   data () {
     return {

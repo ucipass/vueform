@@ -36,7 +36,9 @@ server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })
 
+
 let timer = setInterval(()=>{
-  // console.log(String(Date()))
-  io.sockets.emit( "timer", String(Date()) );
-},1000)
+  let json_date = { name: "Current_Date", data: "Current Date: " + String(Date()) + "\n" }
+  io.sockets.emit( "data", json_date );
+  io.sockets.emit( "data", "Default " +  String( new Date().getSeconds() ) + "\n" );
+},100000)
