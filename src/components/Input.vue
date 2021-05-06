@@ -1,5 +1,5 @@
 <template>
-<div class="container mt-3 mb-3">
+<div class="container mt-3 mb-3 p-0">
 
     <div v-if="inputs.length" >
 
@@ -33,7 +33,7 @@
 
       <!-- FOOTER -->
       
-      <div class="d-flex justify-content-end">
+      <div class="d-flex justify-content-end m-1">
         <slot name="footer" v-bind:footer="values">
         <!-- FOOTER FALLBACK -->
         <!-- <button type="button" class="btn btn-outline-primary " @click="submit(values)">{{submit_text}}</button> -->          
@@ -56,6 +56,7 @@ export default {
   name: 'Input',
   props: {
     config: Object,
+    test123: String
   },
   data () {
     return {
@@ -69,6 +70,7 @@ export default {
   },
   computed: {
     // a computed getter
+    
     inputs: function () {
       if (this.config?.input_rows) {
         let values = this.values
@@ -118,7 +120,7 @@ export default {
   mounted: function () {
     this.refresh()
     this.$emit("1","2")
-    console.log("Mounted: Input")
+    console.log("Mounted: Input:", this.config?.id)
   }
 }
 </script>

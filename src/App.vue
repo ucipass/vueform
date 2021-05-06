@@ -29,13 +29,13 @@
         </NavBar>
     </div>
     <div class="d-flex flex-fill">
-      <Input ref="ref_input" v-show="config.input && visible.input" :config="config.input">
+      <Input ref="ref_input" v-if="config.input" v-show="visible.input" :config="config.input" :test123="'teet'">
         <template #footer="slotProps">
           <button type="button" class="btn btn-outline-primary " @click="submit(slotProps.footer)">Submit</button>
         </template>
       </Input>
-      <Output ref="ref_output"  :visible="visible.output" :config="config.output" :json="output_json"/>
-      <Socket ref="ref_socket" :visible="visible.socket" :config="config.socket"/>
+      <Output ref="ref_output" v-if="config.output" :visible="visible.output" :config="config.output" :json="output_json"/>
+      <Socket ref="ref_socket" v-if="config.socket" :visible="visible.socket" :config="config.socket"/>
     </div>
 
 
@@ -63,8 +63,6 @@ export default {
     return {
       config: {},
       navbar_config: { },
-      input_config:  { },
-      output_config: { },
       output_json: null,
       socket_data: null,
       visible: {
@@ -107,11 +105,9 @@ export default {
     getConfig: async function(){
       let output = await axios.get("config.json")
       if (output.status == 200 && typeof output.data == 'object'){
-        this.input_config = JSON.parse(JSON.stringify(output.data))
         this.config = output.data
       }else{
         console.log("POST FAILED WITH OTHER THAN 200")
-        this.input_config = null
         this.config = {}
       }
 

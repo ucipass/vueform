@@ -26,9 +26,35 @@
           </select>         
         </div>
       </div>
-      <div  v-if="true" class="d-flex flex-column flex-grow-1">
-        <textarea class="form-control text-nowrap h-100" id="TextAreaOutput"  :value="streams[select_index].data"></textarea>
+      <div  v-if="true" class="d-flex flex-column flex-grow-1 m-1">
+        <Input :config="config.input_config">
+          <template #footer="slotProps">
+            <button type="button" class="btn btn-outline-primary " @click="submit(slotProps.footer)" data-toggle="modal" data-target="#modal_socketio_submit">Submit</button>
+          </template>
+        </Input>
+        <label for="exampleFormControlTextarea1">Socket.io Event:</label>
+        <textarea class="form-control text-nowrap h-100" id="TextAreaOutput"  :value="streams[select_index].data"  readonly></textarea>
+
       </div>
+
+      <!-- Modal -->
+      <div class="modal fade" id="modal_socketio_submit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-body">
+              <p>Status: Pending</p>
+              <div class="form-group">
+                <label for="exampleFormControlTextarea1">Reply data</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" readonly></textarea>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>        
 
 
@@ -36,18 +62,21 @@
 </template>
 
 <script>
+import Input from './Input.vue'
 import { io } from "socket.io-client";
 
 export default {
 
   name: 'Socket',
+  components: {
+    Input
+  },
   props: {
     visible: Boolean,
     config: Object
   },
   data () {
     return {
-      test: null,
       input_active: true,
       data: "",
       streams: 
@@ -59,15 +88,19 @@ export default {
     }
   },
   methods: {
+    test: function (data) { console.log("TEST:",data)  },
     refresh: function() {
 
+    },
+    submit: function(json){
+      console.log("Socket.io sumbit",json)
     },
     socket_start(){
 
       let socket = io("http://localhost:3000");
       let streams = this.streams
       socket.on("connect", () => {
-        console.log("Connect Succcess"); 
+        console.log("Socket.io connected. Id:",socket.id); 
       });
 
       socket.on("data", (data) => {
@@ -87,15 +120,11 @@ export default {
         else {
             console.log(123)
         }
-        
-
       });
 
       socket.on('connect_error', () => {
-        console.log("Connection error")
+        console.log("Socket.io connection error")
       })    
-
-
 
     },
     select_stream: function (event) {
@@ -105,11 +134,9 @@ export default {
   },
   mounted: function () {
     this.refresh()
-    console.log("socket",this.socket)
     if (! this.socket) {
       this.socket_start()
     }
-
 
     console.log("Mounted: Socket")
   }
