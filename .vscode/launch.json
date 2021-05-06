@@ -1,15 +1,29 @@
-{ 
-    "version": "0.2.0", 
-    "configurations": [ 
-      { 
-        "type": "pwa-chrome", 
-        "request": "launch", 
-        "name": "vuejs: chrome", 
-        "url": "http://localhost:8080", 
-        "webRoot": "${workspaceFolder}/src", 
-        "sourceMapPathOverrides": { 
-          "webpack:///src/*": "${webRoot}/*" 
-        } 
-      } 
-    ] 
-  } 
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: sshclient",
+      "type": "python",
+      "request": "launch",
+      "program": "sshclient.py",
+      "console": "internalConsole"
+    },
+    {
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "vuejs: chrome",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    }
+  ]
+}

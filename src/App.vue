@@ -31,7 +31,7 @@
     <div class="d-flex flex-fill">
       <Input ref="ref_input" v-show="config.input && visible.input" :config="config.input">
         <template #footer="slotProps">
-          <button type="button" class="btn btn-outline-primary " @click="submit(slotProps)">Submit</button>
+          <button type="button" class="btn btn-outline-primary " @click="submit(slotProps.footer)">Submit</button>
         </template>
       </Input>
       <Output ref="ref_output"  :visible="visible.output" :config="config.output" :json="output_json"/>
@@ -78,7 +78,7 @@ export default {
   methods:{
     submit: async function (json){
 
-      let url = this.input_config.submit.url
+      let url = this.config.input.submit_url
 
       try {
         let output = await axios.post(url,json)
