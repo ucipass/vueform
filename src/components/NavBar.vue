@@ -4,14 +4,12 @@
     <nav class="navbar navbar-expand navbar-dark bg-primary pb-0 ">
       <div class="container-fluid">
         <ul class="navbar-nav">
-          <li class="nav-item">
-            <slot name="navbar_input" class="btn btn-outline-light rounded-0"></slot>
-          </li>
-          <li class="nav-item">
-            <slot name="navbar_output" class="btn btn-outline-light rounded-0"></slot>
-          </li>
-          <li class="nav-item">
-            <slot name="navbar_socket" class="btn btn-outline-light rounded-0"></slot>
+          <li v-for=" item in status" :key="item.name" class="nav-item">
+            <button 
+              class="btn btn-outline-light rounded-0 mr-2" :class="item.active ? 'active' : '' "
+              @click="navbar_handler(item.name)" 
+              >{{item.name}}
+            </button>
           </li>
         </ul>
       </div>
@@ -46,19 +44,34 @@ export default {
   },
   data () {
     return {
-      input_active: true,
-      tab1: true,
-      tab2: false,
-      tab3: false
-
+      navbar: {}      
+    }
+  },
+  computed: {
+    status: function(){
+      let status = []
+      for (const key in this.navbar) {
+        if (Object.hasOwnProperty.call(this.navbar, key)) {
+          status.push( {name: key, active: this.navbar[key]})
+        }
+      }      
+      return status
     }
   },
   methods: {
-    log: function(msg){
-      console.log(msg)
+    // management of navbar status comes from this.navbar
+    navbar_handler: function (name){
+      for (const key in this.navbar) {
+        if (Object.hasOwnProperty.call(this.navbar, key)) {
+          this.navbar[key] = false
+        }
+      }
+      this.navbar[name] = true
     },
+    //Initial navbar setting come from config prop
     refresh: function() {
-
+      this.navbar = JSON.parse(JSON.stringify( this.config) )
+     
     }
   },
   mounted: function () {

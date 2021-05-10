@@ -1,5 +1,3 @@
-
-
 import sys
 import os
 from queue import Queue
@@ -34,13 +32,18 @@ TASK_NOT_EXECUTED_MSG = "TASK HAS NOT BEEN EXECUTED YET"
 ############################# TORNADO WEB & SOCKET.IO ##########################################
 
 sio = socketio.AsyncServer(async_mode='tornado',cors_allowed_origins='*')
+@sio.on('data')
+async def another_event(sid, data):
+     await sshclient(data)
+     return data
+
 
 class MainHandler(tornado.web.RequestHandler):
      def set_default_headers(self):
           self.set_header("Access-Control-Allow-Origin", "*")     
 
      def get(self):
-          self.write("Hello, world!!!!")
+          self.write("Unauthorized access is prohibited!")
 
      def post(self):
           data = tornado.escape.json_decode(self.request.body)     
@@ -49,7 +52,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 def make_app():
     return tornado.web.Application([
-        (r"/submit", MainHandler),
+     #    (r"/submit", MainHandler),
         (r"/socket.io/", socketio.get_tornado_handler(sio)),
         (r"/(.*)", tornado.web.StaticFileHandler, {"path": os.path.join( os.getcwd(), "dist") , "default_filename": "index.html" })
     ])
@@ -68,26 +71,23 @@ async def send_events():
         json = qweb_out.get()
         print("#############################",json["name"])
         await sio.emit( "data", json )
-        await sio.emit("data", msg )
-        await sio.emit("data", json_date)
-        await sio.emit("data", json_msg1)
-        await sio.emit("data", json_msg2)
+        await sio.emit( "data", json_date)
         await asyncio.sleep(1)
         count += 1
 
 async def send_sockets():
     while True:
-          await asyncio.sleep(1)
           try:
                json = qweb_out.get(False)
-               print("#############################",json["name"])
+               print("Sending evemt for hostname:",json["hostname"])
                await sio.emit( "data", json )
           except Empty:
-               pass   
+               await asyncio.sleep(1)   
 
 async def wait_forever():
-    while True:
-        await asyncio.sleep(1)
+     while True:
+          print("New Message")
+          await asyncio.sleep(1)
 
 async def start_tornado():
     app = make_app()
@@ -126,15 +126,16 @@ class SSHTask(object):
                stdin, stdout, stderr = p.exec_command(self.commands)
                self.result = stdout.readlines()
                self.result = "".join(self.result)
-               self.qweb_out.put( { "name": self.hostname, "data": self.result } )
-               # loop.run_until_complete( sio.emit("data", { "name": "SSH", "data": data }) )
                logging.debug("Successfully connected to %s." % self.ip)
+               self.qweb_out.put( { "hostname": self.hostname, "output": self.result } )
                return True
           except KeyboardInterrupt as e:
                exit
           except Exception as e:
                logging.warn("Error occurred while trying to connect to %s (%s). Error: %s" % (self.ip, self.hostname, e))
+               print
                self.result = CONNECTION_ERROR_MSG
+               self.qweb_out.put( { "hostname": self.hostname, "output": str(e) } )
                return False
 
      def getTimesExecuted(self):
@@ -209,10 +210,8 @@ def get_user_pass():
   password = getpass('Password: ')
   return username, password
 
-
-
-async def sshclient():
-
+async def sshclient(hosts):
+     print("START")
      localuser = None
      localpass = None
 
@@ -232,19 +231,32 @@ async def sshclient():
 
 
      logging.info("Creating tasks and populating worker queue.")
-     with open(filename) as csvfile:
-          reader = csv.DictReader(csvfile, restkey="extra")
-          for row in reader:
-               ExtractedIP = row['ip']
-               ExtractedHostname = row['hostname']
-               ExtractedPort     = int(row['port']) if "port" in row  else 22
-               ExtractedUsername = localuser if localuser else row['username']
-               ExtractedPassword = localpass if localpass else row['password']
-               ExtractedCommand  = row['command'] if 'extra' not in row else row['command']+","+",".join(row['extra'])
-               ExtractedFile     = row['file'] if 'file' in row else row['hostname']+".txt"
 
-               #print(command)
-               q.put(SSHTask(qweb_out = qweb_out, ip = ExtractedIP, hostname = ExtractedHostname, username = ExtractedUsername, password = ExtractedPassword, commands = ExtractedCommand, port = ExtractedPort, file = ExtractedFile),True)
+     for host in hosts:
+          ExtractedIP       = host['ip']
+          ExtractedHostname = host['hostname']
+          ExtractedPort     = host['port']
+          ExtractedUsername = host['username']
+          ExtractedPassword = host['password']
+          ExtractedCommand  = host['command']
+          ExtractedFile     = host['hostname']+".txt"
+          q.put(SSHTask(qweb_out = qweb_out, ip = ExtractedIP, hostname = ExtractedHostname, username = ExtractedUsername, password = ExtractedPassword, commands = ExtractedCommand, port = ExtractedPort, file = ExtractedFile),True)
+
+
+     # with open(filename) as csvfile:
+     #      reader = csv.DictReader(csvfile, restkey="extra")
+     #      for row in reader:
+     #           ExtractedIP = row['ip']
+     #           ExtractedHostname = row['hostname']
+     #           ExtractedPort     = int(row['port']) if "port" in row  else 22
+     #           ExtractedUsername = localuser if localuser else row['username']
+     #           ExtractedPassword = localpass if localpass else row['password']
+     #           ExtractedCommand  = row['command'] if 'extra' not in row else row['command']+","+",".join(row['extra'])
+     #           ExtractedFile     = row['file'] if 'file' in row else row['hostname']+".txt"
+
+     #           #print(command)
+     #           q.put(SSHTask(qweb_out = qweb_out, ip = ExtractedIP, hostname = ExtractedHostname, username = ExtractedUsername, password = ExtractedPassword, commands = ExtractedCommand, port = ExtractedPort, file = ExtractedFile),True)
+     print("STOP")
 
 
      # Halt program termination until the queue is empty.
@@ -259,9 +271,12 @@ async def sshclient():
                print(" --"+str(item))
           print("")
 
+
+
+
 async def main():
      await start_tornado()
-     await asyncio.create_task(sshclient())
+     # await asyncio.create_task(sshclient())
      await asyncio.create_task(send_sockets())
      # await asyncio.create_task(wait_forever())
 

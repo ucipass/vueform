@@ -30,31 +30,6 @@
 
   },
   "socket": {
-    "input_config":{
-      "id": "socket_input",
-      "input_rows": [
-        {
-          "id": "socketio_url",
-          "label": "Socket.io URL",
-          "placeholder": "http(s)://localhost:[port]/socket.io",
-          "information": "Leave empty for default: http(s)://localhost:[port]/socket.io",
-          "value" : ""
-        },
-        {
-          "id": "eventName",
-          "label": "Event Name",
-          "placeholder": "Event Name...",
-          "information": "Socket.io event name identified by a string like 'ping', 'data'. etc.",
-          "value" : "data"
-        },
-        {
-          "id": "data",
-          "label": "Socket Data",
-          "placeholder": "Enter string or json",
-          "type": "text",
-          "information": "Currently only string is supported in this field"
-        }
-      ]
-    }
+
   }
 }

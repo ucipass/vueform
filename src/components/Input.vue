@@ -1,17 +1,15 @@
 <template>
-<div class="container mt-3 mb-3 p-0">
+<div :id="config.id" class="container mt-3 mb-3 p-0">
 
     <div v-if="inputs.length" >
 
     <!-- HEADER -->
-    <div v-if="config.header_text">
+    <div >
       <slot name="header" v-bind:header="values">
-        <!-- HEADER FALLBACK -->
-        <h2>{{config.header_text}}</h2>
       </slot>
     </div>
 
-    <!-- INPUTS FOR LOOP   -->
+    <!-- BODY WITH DYNAMIC INPUTS   -->
       <div class="d-flex" >
         <div class="d-flex flex-column justify-content-between">
             <div v-for="input in inputs" :key="input.id" class="m-1 d-flex justify-content-end">
@@ -26,17 +24,24 @@
         </div>            
         <div class="d-flex flex-column justify-content-between w-100">
             <div v-for="input in inputs" :key="input.id" class=" m-1 ">
-                    <input :type="input.type" class="form-control" :id="input.id" :placeholder="input.placeholder" v-model="values[input.id]">
+                    <input 
+                      class="form-control" 
+                      :type="input.type" 
+                      :name="input.id"
+                      :id="config.id + input.id" 
+                      :placeholder="input.placeholder" 
+                      v-model="values[input.id]" 
+                      @change="inputChange"
+                      @click="inputClick"
+                    >
             </div>
         </div>
       </div>
 
       <!-- FOOTER -->
-      
       <div class="d-flex justify-content-end m-1">
         <slot name="footer" v-bind:footer="values">
-        <!-- FOOTER FALLBACK -->
-        <!-- <button type="button" class="btn btn-outline-primary " @click="submit(values)">{{submit_text}}</button> -->          
+        <!-- FOOTER FALLBACK -->    
         </slot>
 
       </div>
@@ -44,45 +49,39 @@
 
     <!-- JUMBOTRON IF NO INPUT CONFIG AVAILABLE -->
     <div v-else class="jumbotron float-center" >
-      <p>Form configuration is not available</p>
+      <p>{{error_msg}}</p>
     </div>
  
 </div>
 </template>
 
 <script>
-import axios from 'axios';
 export default {
   name: 'Input',
   props: {
-    config: Object,
-    test123: String
+    config: Object
   },
   data () {
     return {
-      // inputs: [],
       values: {},
-      submit_text: this.config?.submit_text ? this.config.submit_text : "Submit" ,
-      submit_url: this.config?.submit_url ? this.config.submit_url : "/" ,
-      output: {},      
-      input_active: true
+      buffers: {},
+      error_msg: "Form configuration is not available" 
     }
   },
   computed: {
-    // a computed getter
-    
+    // input fields are computed using the config prop
     inputs: function () {
-      if (this.config?.input_rows) {
+      if ( this.config?.input_rows && this.config?.id ) { //config.id is needed to set unique element ids for templates
         let values = this.values
         let inputs =  this.config.input_rows.filter( item => item.id )
         .map((item)=>{
           values[item.id] = item.value ? item.value : null
           return {
-            id: item.id,
+            id:  item.id,
             label: item.label ? item.label : item.id,
             type: (item.type ? item.type : "text"),
             placeholder: item.placeholder ? item.placeholder : "",
-            information: item.information ? item.information : "",
+            information: item.information ? item.information : ""
           }
         })
         return inputs
@@ -93,33 +92,25 @@ export default {
    }
   },
   methods:{
-    refresh: async function(){
-
-    },
-    submit: async function (json){
-      console.log(json)
-      let url = this.submit_url
-
-      try {
-        let output = await axios.post(url,json)
-        if (output.status == 200){
-          this.output_text = output.data
-          console.log("POST SUCCESSFUL TO",url)
-        }else{
-          this.output_text = "Failed with code " + String(url) + " to " + url
-          console.log(this.output_text)
-        }
-
-      } catch (error) {
-          this.output_text = "Error to " + url + "\n" + String(error)  
-          console.log(this.output_text)
+    inputClick: function ( ev ) {
+      if ( ev?.target?.type == "file") {
+        ev.target.value = ""
       }
-   
+    },
+    inputChange: function ( ev ) {
+      if (ev?.target?.files?.length){
+        let buffers = this.buffers
+        const file = ev.target.files[0];
+        const name = ev.target.name
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          buffers[name] = e.target.result
+          }
+        reader.readAsText(file);        
+      }
     }
   },
   mounted: function () {
-    this.refresh()
-    this.$emit("1","2")
     console.log("Mounted: Input:", this.config?.id)
   }
 }

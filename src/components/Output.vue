@@ -1,9 +1,9 @@
 <template>
-  <div v-if="visible" class="m-3 d-flex flex-fill">
+  <div v-if=" typeof visible == 'undefined' ? true : visible" class="m-3 d-flex flex-fill">
 
 <!-- OUTPUT -->
     <!-- <label class="mb-0" for="TextAreaOutput.id">output</label> -->
-    <textarea class="form-control text-nowrap" id="TextAreaOutput" rows="20" style="resize:none" :value="JSON.stringify(json, null, 2)"></textarea>
+    <textarea class="form-control" id="TextAreaOutput" rows="20" style="resize:none" :value="data" readonly></textarea>
 
   </div>
 </template>
@@ -14,7 +14,8 @@ export default {
   props: {
     config: Object,
     visible: Boolean,
-    json: null
+    json: null,
+    data: String
   },
   data () {
     return {
