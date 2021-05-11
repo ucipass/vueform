@@ -1,11 +1,8 @@
 <template>
-
-    <div v-if="visible" id="SSHClient" class="m-3 d-flex flex-grow-1">
-      <div class="d-flex flex-column mr-3">
-        <div class="d-flex">
-          
-          <!-- LEFT HAND SIDE -->
-          <div class="dropdown">
+  <div v-if="visible" id="SSHClient" class="d-flex flex-column flex-grow-1">
+    <!-- TOP ROW -->
+    <div class="d-flex mt-3 ml-3 mr-3">
+          <div class="dropdown mr-2">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuSave" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Add</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuSave">
               <button class="dropdown-item" data-toggle="modal" data-target="#modal_add_new_host" >Add host manually</button>
@@ -14,7 +11,7 @@
             </div>                
           </div>
 
-          <div class="dropdown">
+          <div class="dropdown mr-2">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuDelete" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Delete</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuDelete">
               <button class="dropdown-item" @click="host_delete_selected" >Delete selected host</button>
@@ -22,13 +19,33 @@
             </div>               
           </div>
 
-          <div class="dropdown">
+          <div class="dropdown mr-2">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuSave" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Save</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuSave">
-              <a class="dropdown-item" href="#">Save configuration as CSV</a>
-              <a class="dropdown-item" href="#">Save configuration as JSON</a>
+              <button class="dropdown-item" @click="hosts_save_json" >Save as JSON</button>
+              <button class="dropdown-item" @click="hosts_save_yaml" >Save as YAML</button>
             </div>                
           </div>
+
+          <div class="dropdown mr-2">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuSave" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">View</button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuSave">
+              <button class="dropdown-item" @click="hosts_save_json" >List View</button>
+              <button class="dropdown-item" @click="hosts_save_yaml" >Outpuut View</button>
+            </div>                
+          </div>
+  
+          <button type="button" class="btn btn-outline-primary " @click="submit()" >Submit</button>
+
+    </div >
+    <!-- BOTTOM ROW -->
+    <div  class="m-3 d-flex flex-grow-1">
+
+      <!-- LEFT HAND SIDE -->
+      <div class="d-flex flex-column mr-3">
+        <label for="hostbar">SSH Host List:</label>
+        <div id="hostbar" class="d-flex">
+
           
         </div>
         <div class="d-flex flex-grow-1">
@@ -40,31 +57,38 @@
 
       <!-- RIGHT HAND SIDE -->
       <div  class="d-flex flex-column flex-grow-1">
-      <table v-if="hosts.length" class="table">
-        <thead>
-          <tr>
-            <th scope="col">Hostname</th>
-            <th scope="col">IP</th>
-            <th scope="col">Port</th>
-            <th scope="col">Username</th>
-            <th scope="col">Command</th>
-            <th scope="col">Expect</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{hosts[select_index].hostname}}</td>
-            <td>{{hosts[select_index].ip}}</td>
-            <td>{{hosts[select_index].port}}</td>
-            <td>{{hosts[select_index].username}}</td>
-            <td>{{hosts[select_index].command}}</td>
-            <td>{{hosts[select_index].expect}}</td>
-          </tr>
-        </tbody>
-      </table>        
-        <button type="button" class="btn btn-outline-primary " @click="submit()" >Submit</button>
-        <label for="exampleFormControlTextarea1">SSH Output:</label>
-        <textarea class="form-control h-100 terminal text-white bg-dark" id="TextAreaOutput"  :value="hosts[select_index] ? hosts[select_index].output : '' "  readonly></textarea>
+        <div class="d-flex">
+            <table v-if="hosts.length" class="table ">
+              <thead>
+                <tr>
+                  <th scope="col">Hostname</th>
+                  <th scope="col">IP</th>
+                  <th scope="col">Port</th>
+                  <th scope="col">Username</th>
+                  <th scope="col">Command</th>
+                  <th scope="col">Expect</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="host in hosts" :key="host" >
+                  <td>{{host.hostname}}</td>
+                  <td>{{host.ip}}</td>
+                  <td>{{host.port}}</td>
+                  <td>{{host.username}}</td>
+                  <td>{{host.command}}</td>
+                  <td>{{host.expect}}</td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+        <div class="d-flex flex-grow-1">
+            <label for="exampleFormControlTextarea1">SSH Output:</label>
+            <textarea class="form-control h-100 terminal text-white bg-dark" id="TextAreaOutput"  :value="hosts[select_index] ? hosts[select_index].output : '' "  readonly></textarea>
+
+        </div>
+
+
+
       </div>
 
       <!-- MODAL -->
@@ -88,8 +112,8 @@
       <InputModal :ref="config_modal_add_new_host.id" :config="config_modal_add_new_host" ><button type="button" class="btn btn-primary" @click="modal_add_new_host()" >Save</button></InputModal>
       <InputModal :ref="config_modal_add_csv_hosts.id" :config="config_modal_add_csv_hosts" ><button type="button" class="btn btn-primary" @click="modal_add_csv_hosts()" >Save</button></InputModal>
 
-    </div>        
-
+    </div>            
+  </div>
 </template>
 
 <script>
@@ -98,6 +122,9 @@ import InputModal from './InputModal.vue'
 import { io } from "socket.io-client";
 import $ from 'jquery'
 import Papa from 'papaparse'
+import YAML from 'yaml'
+import { saveAs } from 'file-saver';
+
 
 export default {
   name: 'SSHClient',
@@ -211,6 +238,14 @@ export default {
     test: function (data) { console.log("TEST:",data)  },
     refresh: function() {
 
+    },
+    hosts_save_json: function(){
+      var blob = new Blob([JSON.stringify(this.hosts,2,null)], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, "hosts.json");
+    },
+    hosts_save_yaml: function(){
+      var blob = new Blob([YAML.stringify(this.hosts       )], {type: "text/plain;charset=utf-8"});
+      saveAs(blob, "hosts.yaml");
     },
     add_hosts: function(hosts){
       for (let index = 0; index < hosts.length; index++) {
