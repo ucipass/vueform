@@ -1,13 +1,13 @@
 <template>
-  <div id="app" class="min-vh-100 vh-100 p-0 d-flex flex-column ">
-    <div class="d-flex">
+  <div id="app" class="d-flex flex-grow-1 flex-column h-100 p-0 ">
+    <div v-if='false' class="d-flex">
         <NavBar ref="navbar" :config="navbar_config" >
         </NavBar>
     </div>
-    <div class="d-flex flex-fill">
+    <div class="d-flex flex-grow-1 flex-column overflow-auto">
       <PostMan   ref="postman"   v-if="config.input  && false"   :visible="$refs.navbar.navbar.PostMan"    :config="config.input" />
       <SocketMan ref="socketman" v-if="config.socket && false"   :visible="$refs.navbar.navbar.SocketMan"  :config="config.socket"/>
-      <SSHClient ref="socketman" v-if="config.socket"   :visible="$refs.navbar.navbar.SSHClient"  :config="config.socket"/>
+      <SSHClient ref="socketman" v-if="config.socket"   :visible="true"  :config="config.socket"/>
     </div>
 
   </div>
@@ -50,6 +50,14 @@ export default {
 </script>
 
 <style>
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0
+}
+
+
 #app {
   /* font-family: Avenir, Helvetica, Arial, sans-serif; */
   -webkit-font-smoothing: antialiased;
